@@ -9,7 +9,13 @@ env.read_env()
 class Settings:
     SECRET_KEY = env.str("SECRET_KEY")
 
-    PROJECT_ROOT = Path(__file__).parent.parent
-    FLASK_RUN_HOST = env.str("FLASK_RUN_HOST")
+    APPLICATION_ROOT = Path(__file__).parent.parent
+    HOST = env.str("RUN_HOST")
     FLASK_RUN_PORT = env.int("FLASK_RUN_PORT")
-    FLASK_DEBUG = env.bool("FLASK_DEBUG")
+    DEBUG = env.bool("DEBUG")
+
+    MONGODB_SETTINGS = {
+        'db': env.str("DB"),
+        'host': env.str("DB_HOST"),
+    }
+    JWT_SECRET_KEY = SECRET_KEY
