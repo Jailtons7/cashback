@@ -13,6 +13,7 @@ class Settings:
     HOST = env.str("RUN_HOST")
     FLASK_RUN_PORT = env.int("FLASK_RUN_PORT")
     DEBUG = env.bool("DEBUG")
+    PAGINATION = env.int("PAGINATION", 10)
 
     MONGODB_SETTINGS = {
         'db': env.str("DB"),
