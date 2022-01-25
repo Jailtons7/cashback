@@ -2,7 +2,7 @@ from api import app
 from api.authentication import views
 
 
-@app.route('/authentication/crete-token', methods=['POST'], strict_slashes=False)
+@app.route('/authentication/create-token', methods=['POST'], strict_slashes=False)
 def login():
     return views.create_token()
 
