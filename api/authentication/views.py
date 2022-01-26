@@ -10,7 +10,7 @@ def create_token():
     password = request.json.get('password', None)
 
     user = User.objects(email=email).first()
-    if user.verify_password(password):
+    if user and user.verify_password(password):
         return jsonify({
             'access_token': create_access_token(identity=email)
         })
