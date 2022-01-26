@@ -1,3 +1,7 @@
+import re
+
+from mongoengine.errors import ValidationError
+
 from api import db, bcript
 
 
@@ -18,6 +22,14 @@ class User(db.Document):
 
     def __str__(self):
         return f'<User {self.nome}>'
+
+    def clean(self) -> None:
+        """
+        Ensures that cpf has only 11 numbers and set cashback_percent and cashback_value
+        """
+        pattern = r'\d{11}'
+        if not bool(re.match(pattern, self.cpf)):
+            raise ValidationError('cpf field must have only 11 numbers.')
 
     def set_password(self, password):
         self.password = bcript.generate_password_hash(password).decode('utf-8')
