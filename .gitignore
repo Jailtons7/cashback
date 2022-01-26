@@ -98,3 +98,4 @@ time
 node_modules/
 
 desafio.pdf
+.pytest_cache
