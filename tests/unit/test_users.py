@@ -76,5 +76,7 @@ def test_cpf_validation():
 
     with pytest.raises(ValidationError):
         assert user1.save()
+    with pytest.raises(ValidationError):
         assert user2.save()
+    with pytest.raises(ValidationError):
         assert user3.save()
