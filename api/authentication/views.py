@@ -13,7 +13,7 @@ def create_token():
     if user and user.verify_password(password):
         return jsonify({
             'access_token': create_access_token(identity=email)
-        })
+        }), 201
     return jsonify({
         'msg': 'No active account with the given credentials'
     }), 401

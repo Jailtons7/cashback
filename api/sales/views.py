@@ -42,4 +42,4 @@ def purchase_view():
             'total': tot,
             'msg': 'Successfully fetched',
             'data': [purchase for purchase in purchases.items]
-        }), 200
+        }), 201
