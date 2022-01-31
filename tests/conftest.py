@@ -16,7 +16,7 @@ class TestSettings(Settings):
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def client():
     app.config.from_object(TestSettings)
     with app.test_client() as client:
