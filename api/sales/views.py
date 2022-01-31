@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, g
 from mongoengine.errors import ValidationError, NotUniqueError
 
 from api.sales.models import Purchase
@@ -11,16 +11,15 @@ def purchase_view():
 
         try:
             purchase = Purchase(**data)
-        except TypeError as e:
-            print(e)
-            return jsonify({'msg': Purchase.required_fields()}), 400
-
-        try:
+            purchase.set_user(g.user)
             purchase.save()
             return jsonify({
                 'msg': 'Successfully added',
                 'data': purchase
-            })
+            }), 201
+        except TypeError as e:
+            print(e)
+            return jsonify({'msg': Purchase.required_fields()}), 400
         except ValidationError as e:
             print(e.message)
             return jsonify({'msg': e.message}), 400
@@ -36,10 +35,11 @@ def purchase_view():
 
         per_page = Settings.PAGINATION
 
-        purchases = Purchase.objects.paginate(page=page, per_page=per_page)
+        purchases = Purchase.objects(user=g.user).paginate(page=page, per_page=per_page)
         tot = Purchase.objects.count()
         return jsonify({
             'total': tot,
             'msg': 'Successfully fetched',
             'data': [purchase for purchase in purchases.items]
-        }), 201
+        }), 200
+
