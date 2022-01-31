@@ -1,11 +1,16 @@
 import re
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 
 from mongoengine.errors import ValidationError
+from mongoengine.queryset.visitor import Q
 
 from api import db
+from api.authentication.models import User
 
 
 class Purchase(db.Document):
+    user = db.ReferenceField(User, required=True)
     code = db.StringField(required=True, unique=True)
     cpf = db.StringField(required=True, max_length=11)
     value = db.DecimalField(required=True, precision=2)
@@ -26,6 +31,9 @@ class Purchase(db.Document):
 
     def __repr__(self):
         return f'<Purchase {self.code}>'
+
+    def set_user(self, user):
+        self.user = user
 
     def clean(self) -> None:
         """
