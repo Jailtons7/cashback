@@ -37,12 +37,27 @@ e finalmente
 ```shell
 flask run
 ```
+## 3. Testes
 
-## 3. Exemplos de chamada
+A aplicação conta com testes unitários e de integração para rodá-los use os comandos a seguir:
 
-#### 3.1. Autenticação
+```shell
+pytest tests/unit  # testes unitários
+```
 
-##### 3.1.1. Criar usuário
+```shell
+pytest tests/integrations  # testes de integração
+```
+
+```shell
+pytest  # testes unitários e de integração
+```
+
+## 4. Exemplos de chamada
+
+#### 4.1. Autenticação
+
+##### 4.1.1. Criar usuário
 ```shell
 POST '/authentication/users'
 # headers
@@ -59,7 +74,7 @@ POST '/authentication/users'
 }
 ```
 A resposta deve ter status code 201, Created, com os dados do usuário criado .
-##### 3.1.2. Token de Acesso
+##### 4.1.2. Token de Acesso
 ```shell
 POST '/authentication/create-token'
 # headers
@@ -75,8 +90,8 @@ POST '/authentication/create-token'
 ```
 A resposta deve ter status code 201 created com o token de acesso.
 
-#### 3.2. Compras
-##### 3.2.1 Registrar uma nova compra
+#### 4.2. Compras
+##### 4.2.1 Registrar uma nova compra
 ```shell
 POST '/purchases'
 # headers
@@ -94,7 +109,7 @@ POST '/purchases'
 }
 ```
 A resposta deve ter status code 201 created com os dados da compra adicionada.
-##### 3.2.2. Recuperar as compras
+##### 4.2.2. Recuperar as compras
 ```shell
 GET '/purchases'
 # headers
