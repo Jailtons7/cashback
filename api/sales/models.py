@@ -43,18 +43,35 @@ class Purchase(db.Document):
         if not bool(re.match(pattern, self.cpf)):
             raise ValidationError('cpf field must have only 11 numbers.')
 
-        if self.cpf == '15350946056':
+        if self.user.cpf == '15350946056':
             self.status = 'Aprovado'
 
-        if self.value <= 1000.0:
-            self.cashback_percent = 0.1
-        elif self.value <= 1500.0:
-            self.cashback_percent = 0.15
-        else:
-            self.cashback_percent = 0.2
-
+        self.cashback_percent = self.cashback_decimal(self.value)
         self.cashback_value = self.value * self.cashback_percent
 
     @staticmethod
     def required_fields():
         return 'fields code, cpf, value and date are required'
+
+    @classmethod
+    def get_monthly_cashback(cls, cpf):
+        """
+        Returns the cashback of a given buyer
+        """
+        today = date.today()
+        prev_month = today + relativedelta(months=-1)
+        purchases = cls.objects(cpf=cpf, status="Aprovado")
+        prev_purchases = purchases.filter(
+            (Q(date__gte=date(prev_month.year, prev_month.month, 1)) & Q(date__lte=prev_month))
+        )
+        tot_value = sum([purchase.value for purchase in prev_purchases])
+        return round(float(tot_value) * cls.cashback_decimal(tot_value), 2)
+
+    @staticmethod
+    def cashback_decimal(value):
+        if value <= 1000.0:
+            return 0.1
+        elif value <= 1500.0:
+            return 0.15
+        else:
+            return 0.2

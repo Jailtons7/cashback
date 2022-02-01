@@ -3,6 +3,7 @@ from mongoengine.errors import ValidationError, NotUniqueError
 
 from api.sales.models import Purchase
 from config.settings import Settings
+from integrations.boticario import BoticarioCashback
 
 
 def purchase_view():
@@ -43,3 +44,15 @@ def purchase_view():
             'data': [purchase for purchase in purchases.items]
         }), 200
 
+
+def cashback_view(cpf):
+    monthly_cashback = Purchase.get_monthly_cashback(cpf=cpf)
+    credit = BoticarioCashback.get_boticario_credits(cpf=cpf)
+    if credit is not None:
+        return jsonify({
+            "msg": "Successfully fetched",
+            "cashback": monthly_cashback + credit
+        }), 200
+    return jsonify({
+        "msg": "Service unavailable. Please try again later"
+    }), 503
