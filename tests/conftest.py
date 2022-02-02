@@ -19,7 +19,9 @@ class TestSettings(Settings):
     DB_PASSWORD = env.str("DB_PASSWORD")
 
     MONGODB_SETTINGS = {
-        'host': env.str("DB_HOST").format(user=quote_plus(DB_USER), pwd=quote_plus(DB_PASSWORD), db=quote_plus(DB)),
+        'host': 'mongodb+srv://{user}:{pwd}@cluster0.yuhnh.mongodb.net/{db}?retryWrites=true&w=majority'.format(
+            user=quote_plus(DB_USER), pwd=quote_plus(DB_PASSWORD), db=quote_plus(DB)
+        ),
     }
 
 

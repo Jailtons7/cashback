@@ -40,7 +40,6 @@ jobs:
         echo DB=${{ secrets.DB }}  >> .env
         echo DB_USER=${{ secrets.DB_USER }}  >> .env
         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }}  >> .env
-        echo DB_HOST=${{ secrets.DB_HOST }}  >> .env
         cat .env
     - name: Test with pytest
       run: |
