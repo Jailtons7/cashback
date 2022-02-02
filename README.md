@@ -30,11 +30,7 @@ pip install -r requirements.txt
 ```
 
 #### 2.3. Servindo a aplicação
-Para disponibilizar a aplicação execute os comandos a seguir:
-```shell
-export FLASK_APP=main.py  # Informa o arquivo que roda a aplicação
-```
-e finalmente
+Para disponibilizar a aplicação execute o comando a seguir:
 ```shell
 flask run
 ```
