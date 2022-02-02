@@ -18,8 +18,9 @@ que está sendo usado para conectar ao MongoDB.
 > projeto e [criar e ativar um ambiente virtual.](https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/26/python-virtual-env/)
 
 #### 2.1. Variáveis de ambiente e conexão com o MongoDB
-Crie um arquivo `.env` e copie o conteúdo do arquivo `local.env` para ele. Será preciso fornecer um valor para `DB_HOST`
-com a url de conexão do seu banco de dados `MongoDB`.
+Para a conexão com o `MongoDB` será preciso uma [Cluster no Atlas](https://docs.atlas.mongodb.com/getting-started/).
+Crie um arquivo `.env` e copie o conteúdo do arquivo `local.env` para ele. 
+Será preciso fornecer os seus valores para o banco que será usado, `DB`, e as credenciais: `DB_USER` e `DB_PASSWORD`
 
 #### 2.2. Instalando as dependências
 Para instalar as dependências python basta rodar o comando a seguir:

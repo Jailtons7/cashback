@@ -1,18 +1,25 @@
 import pytest
+from urllib.parse import quote_plus
 
+from environs import Env
 from flask_mongoengine import MongoEngine
 
 from api import app, db
 from config.settings import Settings
 
 db.disconnect()
+env = Env()
+env.read_env()
 
 
 class TestSettings(Settings):
     TESTING = True
+    DB = env.str('DB_TEST', 'test')
+    DB_USER = env.str("DB_USER")
+    DB_PASSWORD = env.str("DB_PASSWORD")
+
     MONGODB_SETTINGS = {
-        'db': 'test',
-        'host': 'mongodb://127.0.0.1:5000/test',
+        'host': env.str("DB_HOST").format(user=quote_plus(DB_USER), pwd=quote_plus(DB_PASSWORD), db=quote_plus(DB)),
     }
 
 
@@ -28,4 +35,4 @@ def client():
 
         with app.app_context():
             # Apaga o db de testes
-            db.connection.drop_database('test')
+            db.connection.drop_database(TestSettings.DB)
