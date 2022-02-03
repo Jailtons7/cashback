@@ -40,7 +40,8 @@ def index():
                 }
             ]
         },
-        "code": "See code at https://github.com/Jailtons7/cashback"
+        "code": "See code at https://github.com/Jailtons7/cashback",
+        "test": "test CI/CD"
     })
 
 
