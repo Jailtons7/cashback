@@ -123,4 +123,4 @@ GET '/cashback/<str:cpf>'
     "Authorization": "Bearer " + access_token
 }
 ```
-A resposta deve ter status code 200 success com as compras registradas.
+A resposta deve ter status code 200 success com o cashback do cliente.
