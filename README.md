@@ -115,3 +115,12 @@ GET '/purchases'
 }
 ```
 A resposta deve ter status code 200 success com as compras registradas.
+##### 4.2.3 Recuperar o Cashback de um cliente
+```shell
+GET '/cashback/<str:cpf>'
+# headers
+{
+    "Authorization": "Bearer " + access_token
+}
+```
+A resposta deve ter status code 200 success com as compras registradas.
