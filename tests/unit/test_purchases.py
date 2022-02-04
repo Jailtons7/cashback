@@ -3,24 +3,7 @@ from datetime import date
 import pytest
 from mongoengine.errors import ValidationError, NotUniqueError
 
-from api.authentication.models import User
 from api.sales.models import Purchase
-
-
-@pytest.fixture(scope="module")
-def normal_user():
-    n_user = User(nome='user1', email='user1@example.com', cpf='12345678987')
-    n_user.set_password('password.@')
-    n_user.save()
-    return n_user
-
-
-@pytest.fixture(scope="module")
-def approved_user():
-    a_user = User(nome='user2', email='user2@example.com', cpf='15350946056')
-    a_user.set_password('password.@')
-    a_user.save()
-    return a_user
 
 
 def test_purchase_instance():
@@ -48,7 +31,7 @@ def test_purchase_save(client, normal_user):
     THEN check the code, cpf, value and date fields
     """
     dt = date.today()
-    purchase = Purchase(code='1', cpf='12345678912', value=750, date=dt)
+    purchase = Purchase(code='1200', cpf='12345678912', value=750, date=dt)
     assert purchase.cashback_percent is None
     assert purchase.cashback_value is None
     assert purchase.user is None
