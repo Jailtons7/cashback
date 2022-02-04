@@ -1,7 +1,11 @@
 import json
 from datetime import date
 
+import requests
+from dateutil.relativedelta import relativedelta
+
 from api.sales.models import Purchase
+from integrations.boticario import BoticarioCashback
 
 
 mimetype = 'application/json'
@@ -10,16 +14,21 @@ headers = {
     'Accept': mimetype
 }
 
+normal_user_credentials = {
+    'email': 'user1@example.com',
+    'password': 'password.@'
+}
+approved_user_credentials = {
+    'email': 'user2@example.com',
+    'password': 'password.@'
+}
 
-def get_token(client):
+
+def get_token(client, auth_dict):
     """
-    returns access token from normal user,
-    only call this function if your test uses normal_user fixture
+    returns access token from user,
+    only call this function if your test uses either normal_user or approved_user fixture
     """
-    auth_dict = {
-        'email': 'user1@example.com',
-        'password': 'password.@'
-    }
     req = client.post('/authentication/create-token', data=json.dumps(auth_dict), headers=headers)
     return req.json['access_token']
 
@@ -30,7 +39,7 @@ def test_retrieve_purchases(client, normal_user):
     WHEN purchases are in database
     THEN check the status code, message and the response data
     """
-    headers['Authorization'] = f'Bearer {get_token(client)}'
+    headers['Authorization'] = f'Bearer {get_token(client, normal_user_credentials)}'
     req = client.get('/purchases', headers=headers)
     assert req.status_code == 200
     assert req.json['msg'] == 'Successfully fetched'
@@ -69,7 +78,7 @@ def test_add_purchase(client, normal_user):
         "value": 722.89,
         "date": "2022-01-01"
     }
-    headers['Authorization'] = f'Bearer {get_token(client)}'
+    headers['Authorization'] = f'Bearer {get_token(client, normal_user_credentials)}'
     req = client.post("/purchases", data=json.dumps(purchase_data), headers=headers)
     assert req.status_code == 201
     assert req.json["msg"] == "Successfully added"
@@ -89,7 +98,7 @@ def test_purchase_code_exists_fail(client, normal_user):
         "value": 722.89,
         "date": "2022-01-01"
     }
-    headers['Authorization'] = f'Bearer {get_token(client)}'
+    headers['Authorization'] = f'Bearer {get_token(client, normal_user_credentials)}'
     req = client.post("/purchases", data=json.dumps(purchase_data), headers=headers)
     assert req.status_code == 400
     assert req.json["msg"] == f"There's already a purchase with code '{purchase_data['code']}'"
@@ -108,7 +117,7 @@ def test_purchase_required_fields(client, normal_user):
         "date": "2022-01-01"
     }
     fixed_dict = purchase_data.copy()
-    headers['Authorization'] = f'Bearer {get_token(client)}'
+    headers['Authorization'] = f'Bearer {get_token(client, normal_user_credentials)}'
     keys = ["code", "cpf", "value", "date"]
     for key in keys:
         del purchase_data[key]
@@ -124,7 +133,7 @@ def test_purchases_response_cpf_validation(client, normal_user):
     WHEN the purchase to be created has invalid cpf
     THEN check the status code and message
     """
-    headers['Authorization'] = f'Bearer {get_token(client)}'
+    headers["Authorization"] = f"Bearer {get_token(client, normal_user_credentials)}"
     cpfs = ['123.123.123-12', '123123123 12', '123123123as', '1231231', 'asdasdasdas']
     for cpf in cpfs:
         purchase_data = {
@@ -136,3 +145,34 @@ def test_purchases_response_cpf_validation(client, normal_user):
         req = client.post("/purchases", data=json.dumps(purchase_data), headers=headers)
         assert req.status_code == 400
         assert "cpf field must have only 11 numbers" in req.json["msg"]
+
+
+def test_get_cashback(client, approved_user):
+    """
+    GIVEN a GET request to '/cashback/<str:cpf>' endpoint
+    WHEN the given cpf have made purchases in the previous month
+    THEN check the total cashback
+    """
+    headers['Authorization'] = f'Bearer {get_token(client, approved_user_credentials)}'
+    req = client.get("/cashback/98765432123", headers=headers)
+    assert req.status_code == 200
+    assert req.json['msg'] == 'Successfully fetched'
+    assert "cashback" in req.json
+
+    today = date.today()
+    prev_month = today + relativedelta(months=-1)
+
+    purchases = [
+        dict(code='1800', cpf='98765432123', value=750, date=prev_month),
+        dict(code='5800', cpf='98765432123', value=1750, date=prev_month),
+        dict(code='6800', cpf='98765432123', value=2750, date=prev_month),
+        dict(code='2800', cpf='98765432123', value=450, date=prev_month),
+    ]
+    boticario_credit = BoticarioCashback.get_boticario_credits(cpf='98765432123')
+    for purc in purchases:
+        purchase = Purchase(**purc)
+        purchase.set_user(approved_user)
+        purchase.save()
+        req = client.get("/cashback/98765432123", headers=headers)
+
+    assert req.json["cashback"] == 5700 * Purchase.cashback_decimal(5700) + boticario_credit
