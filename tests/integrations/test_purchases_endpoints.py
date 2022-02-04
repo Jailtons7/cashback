@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from api.sales.models import Purchase
 
@@ -11,12 +12,49 @@ headers = {
 
 
 def get_token(client):
+    """
+    returns access token from normal user,
+    only call this function if your test uses normal_user fixture
+    """
     auth_dict = {
         'email': 'user1@example.com',
         'password': 'password.@'
     }
     req = client.post('/authentication/create-token', data=json.dumps(auth_dict), headers=headers)
     return req.json['access_token']
+
+
+def test_retrieve_purchases(client, normal_user):
+    """
+    GIVEN a GET request to '/purchases' endpoint
+    WHEN purchases are in database
+    THEN check the status code, message and the response data
+    """
+    headers['Authorization'] = f'Bearer {get_token(client)}'
+    req = client.get('/purchases', headers=headers)
+    assert req.status_code == 200
+    assert req.json['msg'] == 'Successfully fetched'
+    assert req.json['total'] == 0
+    assert req.json['data'] == []
+
+    # Save some purchases
+    today = date.today()
+    dict_purchases = [
+        dict(code='1700', cpf='12345678912', value=750, date=today),
+        dict(code='5700', cpf='12345678912', value=1750, date=today),
+        dict(code='6700', cpf='12345678912', value=2750, date=today),
+        dict(code='2700', cpf='12345678912', value=450, date=today),
+    ]
+    for purc in dict_purchases:
+        purchase = Purchase(**purc)
+        purchase.set_user(normal_user)
+        purchase.save()
+
+    req = client.get('/purchases', headers=headers)
+    assert req.status_code == 200
+    assert req.json['msg'] == 'Successfully fetched'
+    assert req.json['total'] == 4
+    assert len(req.json['data']) == 4
 
 
 def test_add_purchase(client, normal_user):
@@ -41,7 +79,7 @@ def test_add_purchase(client, normal_user):
 
 def test_purchase_code_exists_fail(client, normal_user):
     """
-    GIVEN a POST to '/purchases' endpoint
+    GIVEN a POST request to '/purchases' endpoint
     WHEN the purchase code already exists
     THEN check the status code and message of response
     """
@@ -59,7 +97,7 @@ def test_purchase_code_exists_fail(client, normal_user):
 
 def test_purchase_required_fields(client, normal_user):
     """
-    GIVEN a POST to '/purchases' endpoint
+    GIVEN a POST request to '/purchases' endpoint
     WHEN the purchase to be created is invalid
     THEN check the status code and message
     """
@@ -82,10 +120,11 @@ def test_purchase_required_fields(client, normal_user):
 
 def test_purchases_response_cpf_validation(client, normal_user):
     """
-    GIVEN a POST to '/purchases' endpoint
+    GIVEN a POST request to '/purchases' endpoint
     WHEN the purchase to be created has invalid cpf
     THEN check the status code and message
     """
+    headers['Authorization'] = f'Bearer {get_token(client)}'
     cpfs = ['123.123.123-12', '123123123 12', '123123123as', '1231231', 'asdasdasdas']
     for cpf in cpfs:
         purchase_data = {
