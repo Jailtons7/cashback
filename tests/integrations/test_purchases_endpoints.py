@@ -1,7 +1,6 @@
 import json
 from datetime import date
 
-import requests
 from dateutil.relativedelta import relativedelta
 
 from api.sales.models import Purchase
