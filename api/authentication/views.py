@@ -6,8 +6,14 @@ from api.authentication.models import User
 
 
 def create_token():
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
+    data = request.json
+    if not data:
+        return jsonify({
+            'msg': 'You must provide your credentials'
+        }), 400
+
+    email = data.get('email', None)
+    password = data.get('password', None)
 
     user = User.objects(email=email).first()
     if user and user.verify_password(password):
@@ -19,11 +25,11 @@ def create_token():
     }), 401
 
 
-def users_view(id=None):
+def users_view():
     if request.method == 'POST':
         data = request.json
 
-        if not data['password']:
+        if not data or not data['password']:
             return jsonify({'msg': User.required_fields()}), 400
 
         try:
