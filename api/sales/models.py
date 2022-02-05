@@ -5,8 +5,11 @@ from dateutil.relativedelta import relativedelta
 from mongoengine.errors import ValidationError
 from mongoengine.queryset.visitor import Q
 
-from api import db
+from extensions.db import init_db
 from api.authentication.models import User
+
+
+db = init_db()
 
 
 class Purchase(db.Document):

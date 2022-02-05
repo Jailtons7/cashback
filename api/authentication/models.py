@@ -2,7 +2,11 @@ import re
 
 from mongoengine.errors import ValidationError
 
-from api import db, bcript
+from extensions.db import init_db
+from extensions.bcript import init_bcript
+
+db = init_db()
+bcript = init_bcript()
 
 
 class User(db.Document):
