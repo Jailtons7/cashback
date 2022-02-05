@@ -22,7 +22,7 @@ def test_create_user(client):
         "email": "ana@gmail.com",
         "password": "my-secret.@"
     }
-    req = client.post('http://localhost:5000/authentication/users', data=json.dumps(usr_data), headers=headers)
+    req = client.post('/authentication/users', data=json.dumps(usr_data), headers=headers)
     assert req.status == '201 CREATED'
     assert req.json['msg'] == 'successfuly added'
     assert all([key in req.json['data'] for key in usr_data.keys()])
@@ -48,8 +48,11 @@ def test_get_token(client):
     user.save()
     req = client.post('/authentication/create-token')
     assert req.status_code == 400
+    assert req.json['msg'] == 'Content-Type wrong or not set.'
+
+    req = client.post('/authentication/create-token', headers=headers)
+    assert req.status_code == 400
 
     req2 = client.post('/authentication/create-token', data=json.dumps(login), headers=headers)
     assert req2.status_code == 201
     assert 'access_token' in req2.json
-
