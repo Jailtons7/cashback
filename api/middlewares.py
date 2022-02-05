@@ -1,10 +1,11 @@
-from flask import request, jsonify, g
+from flask import request, jsonify, g, Blueprint
 
-from api import app
 from api.authentication.models import User
 
+breq_blueprint = Blueprint('before_request_blueprint', __name__)
 
-@app.before_request
+
+@breq_blueprint.before_app_request
 def verify_headers_middleware():
     """
     Middleware to return BAD REQUEST if user
